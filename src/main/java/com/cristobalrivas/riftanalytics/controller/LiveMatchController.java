@@ -5,11 +5,13 @@ import com.cristobalrivas.riftanalytics.dto.RiotAccountDto;
 import com.cristobalrivas.riftanalytics.service.RiotService;
 import com.cristobalrivas.riftanalytics.service.SpectatorService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException;
 
 @RestController
 @RequestMapping("/api/v1/matches")
@@ -34,5 +36,10 @@ public class LiveMatchController {
         return spectatorService.findActiveGame(region, account.getPuuid())
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.noContent().build());
+    }
+
+    @ExceptionHandler(HttpClientErrorException.NotFound.class)
+    public ResponseEntity<Void> handlePlayerNotFound() {
+        return ResponseEntity.notFound().build();
     }
 }
